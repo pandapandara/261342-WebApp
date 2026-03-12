@@ -14,7 +14,7 @@ class PaymentController extends Controller
     {
         //$payments = Payment::where('user_id', Auth::id())->get();
         //$payments =Auth()->orders()->with('payment')->get();
-        $payments=Auth()->user()->payments()->get();
+        $payments=Auth::user()->payments()->with('order')->get();
         return view('payments.index', compact('payments'));
     }
 
@@ -32,12 +32,21 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
+            'order_id' => 'required|exists:orders,order_id',
             'amount' => 'required|numeric',
             'payment_method' => 'required|string',
-            'status' => 'required|string',
         ]);
+        $validatedData['payment_date'] = now();
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['status'] = 'pending'; // Default status is pending
 
-        Payment::create($validatedData);
+        $payment = Payment::create($validatedData);
+
+        // Mark payment as processing (payment initiated)
+        $payment->markAsProcessing();
+
+        // Mark order as processing when payment is initiated
+        $payment->order->markAsProcessing();
 
         return redirect()->route('payments.index')->with('success', 'Payment created successfully.');
     }
@@ -47,7 +56,9 @@ class PaymentController extends Controller
      */
     public function show(string $id)
     {
-        $payment = Auth::user()->payments()->findOrFail($id);
+        $payment = Payment::where('payment_id', $id)
+                         ->where('user_id', Auth::id())
+                         ->firstOrFail();
         return view('payments.show', compact('payment'));
     }
 
@@ -56,7 +67,9 @@ class PaymentController extends Controller
      */
     public function edit(string $id)
     {
-        $payment = Auth::user()->payments()->findOrFail($id);
+        $payment = Payment::where('payment_id', $id)
+                         ->where('user_id', Auth::id())
+                         ->firstOrFail();
         return view('payments.edit', compact('payment'));
     }
 
@@ -65,11 +78,13 @@ class PaymentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $payment = Auth::user()->payments()->findOrFail($id);   
+        $payment = Payment::where('payment_id', $id)
+                         ->where('user_id', Auth::id())
+                         ->firstOrFail();   
         $validatedData = $request->validate([
             'amount' => 'required|numeric',
             'payment_method' => 'required|string',
-            'status' => 'required|string',
+            'status' => 'required|in:pending,processing,complete,failed',
         ]);
         $payment->update($validatedData);
         return redirect()->route('payments.index')->with('success', 'Payment updated successfully.');
@@ -82,11 +97,44 @@ class PaymentController extends Controller
     public function destroy(string $id)
     {
         $payment = Payment::where('payment_id', $id)
-         ->where('user_id', Auth::id())
-         ->firstOrFail(); // Will throw a ModelNotFoundException if the entry doesn't exist or doesn't belong to the user
+                         ->where('user_id', Auth::id())
+                         ->firstOrFail();
+        $payment->delete();
 
-     $payment->delete();
+        return redirect()->route('payments.index')->with('status', 'Payment deleted successfully!');
+    }
 
-     return redirect()->route('payments.index')->with('status', 'Payment deleted successfully!');
+    /**
+     * Mark payment as complete
+     */
+    public function markComplete(string $id)
+    {
+        $payment = Payment::where('payment_id', $id)
+                         ->where('user_id', Auth::id())
+                         ->firstOrFail();
+
+        $payment->markAsComplete();
+
+        // Mark order as complete when payment is completed
+        $payment->order->markAsComplete();
+
+        return redirect()->route('payments.index')->with('success', 'Payment marked as complete.');
+    }
+
+    /**
+     * Mark payment as failed
+     */
+    public function markFailed(string $id)
+    {
+        $payment = Payment::where('payment_id', $id)
+                         ->where('user_id', Auth::id())
+                         ->firstOrFail();
+
+        $payment->markAsFailed();
+
+        // Mark order as failed when payment fails
+        $payment->order->markAsFailed();
+
+        return redirect()->route('payments.index')->with('warning', 'Payment marked as failed.');
     }
 }

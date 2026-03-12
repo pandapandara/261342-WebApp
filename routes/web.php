@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\OrderController; //adding order controller to routes
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -21,7 +23,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/photo/{filename}', [UserController::class, 'showProfilePhoto'])->where('filename', '.*')->name('user.photo'); //to read
     Route::resource('products', ProductController::class);
     Route:: resource('payments', PaymentController::class);
-    
+
+    //order routes & order status update routes (between 2 controllers: payment and order)
+    Route::resource('orders', OrderController::class);
+    Route::patch('/orders/{order}/mark-as-packing', [OrderController::class, 'markAsPacking'])->name('orders.markAsPacking');
+    Route::patch('/orders/{order}/mark-as-delivering', [OrderController::class, 'markAsDelivering'])->name('orders.markAsDelivering');
+    Route::patch('/orders/{order}/mark-as-complete', [OrderController::class, 'markAsComplete'])->name('orders.markAsComplete');
 });
 
 

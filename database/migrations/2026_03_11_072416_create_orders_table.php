@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('order_id');
             $table->timestamps();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('status');
+            $table->string('status')->default('pending');
             $table->decimal('total_amount', 10, 2);
             $table->timestamp('order_date');    
         });
