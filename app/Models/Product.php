@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Tag;
+use App\Models\CartItem;
 class Product extends Model
 {
     protected $primaryKey = 'product_id';
@@ -48,4 +49,8 @@ class Product extends Model
             ->withPivot(['quantity', 'price_at_purchase'])
             ->withTimestamps();
     }
+    public function tags()
+{
+    return $this->morphToMany(Tag::class, 'taggable');
+}
 }

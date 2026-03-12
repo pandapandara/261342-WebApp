@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -21,7 +23,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/photo/{filename}', [UserController::class, 'showProfilePhoto'])->where('filename', '.*')->name('user.photo'); //to read
     Route::resource('products', ProductController::class);
     Route:: resource('payments', PaymentController::class);
+     // Cart
+    Route::get('/carts', [CartController::class, 'index'])->name('carts.index');
+    Route::post('/carts', [CartController::class, 'store'])->name('carts.store');
+    Route::patch('/carts/{id}', [CartController::class, 'update'])->name('carts.update');
+    Route::delete('/carts/{id}', [CartController::class, 'destroy'])->name('carts.destroy');
+
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::post('/orders/now', [OrderController::class, 'storeNow'])->name('orders.storeNow');
     
+
 });
 
 

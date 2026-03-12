@@ -12,7 +12,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products =Product::all();
+        $products =Product::with('tags')->get();
         return view('products.index', compact('products'));
     }
 
@@ -37,7 +37,10 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::where('product_id', $id)->firstOrFail(); 
+        //can not use findOrFail($id) because the primary key is not id
+       $product = Product::with('tags')
+                ->where('product_id', $id)
+                ->firstOrFail();
     return view('products.show', compact('product'));
     }
 

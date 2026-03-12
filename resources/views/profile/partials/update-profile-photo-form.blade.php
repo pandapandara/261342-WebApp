@@ -18,16 +18,6 @@
         <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
     </div>
 
-    @if ($user->image)
-    <div class="mt-6">
-        <x-input-label for="current_photo" :value="__('Current Profile Photo')" />
-        <div class="mt-1">
-            <img src="{{ route('user.photo', ['filename' => $user->image]) }}"
-                 alt="Profile Photo"
-                 class="w-32 h-32 object-cover rounded-full" />
-        </div>
-    </div>
-@endif
     <div class="flex items-center gap-4">
         <x-primary-button>{{ __('Save') }}</x-primary-button>
 
@@ -40,4 +30,14 @@
     </div>
 </form>
 
+@if ($user->image)
+    <div class="mt-6">
+        <x-input-label for="current_photo" :value="__('Current Profile Photo')" />
+        <div class="mt-1">
+            <img src="{{ route('user.photo', ['filename' => $user->image]) }}"
+                 alt="Profile Photo"
+                 class="w-32 h-32 object-cover rounded-full" />
+        </div>
+    </div>
+@endif
 </section>

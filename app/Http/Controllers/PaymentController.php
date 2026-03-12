@@ -12,9 +12,10 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        //$payments = Payment::where('user_id', Auth::id())->get();
-        //$payments =Auth()->orders()->with('payment')->get();
-        $payments=Auth()->user()->payments()->get();
+        $payments = Payment::whereHas('order', function ($query) {
+                $query->where('user_id', Auth::id());
+            })->with('order')->get();
+
         return view('payments.index', compact('payments'));
     }
 
@@ -32,14 +33,18 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'amount' => 'required|numeric',
-            'payment_method' => 'required|string',
-            'status' => 'required|string',
+            'order_id' => 'required|exists:orders,order_id',
+            'amount'   => 'required|numeric',
+            'method'   => 'required|string',
+            'status'   => 'required|string',
         ]);
 
-        Payment::create($validatedData);
+        $order = Auth::user()->orders()->findOrFail($validated['order_id']);
 
-        return redirect()->route('payments.index')->with('success', 'Payment created successfully.');
+        $order->payment()->create($validated);
+
+        return redirect()->route('payments.index')
+                         ->with('success', 'Payment created successfully.');
     }
 
     /**
@@ -47,7 +52,11 @@ class PaymentController extends Controller
      */
     public function show(string $id)
     {
-        $payment = Auth::user()->payments()->findOrFail($id);
+        $payment = Payment::where('pay_id', $id)
+            ->whereHas('order', function ($query) {
+                $query->where('user_id', Auth::id());
+            })->with('order')->firstOrFail();
+
         return view('payments.show', compact('payment'));
     }
 
@@ -56,7 +65,11 @@ class PaymentController extends Controller
      */
     public function edit(string $id)
     {
-        $payment = Auth::user()->payments()->findOrFail($id);
+        $payment = Payment::where('pay_id', $id)
+            ->whereHas('order', function ($query) {
+                $query->where('user_id', Auth::id());
+            })->with('order')->firstOrFail();
+
         return view('payments.edit', compact('payment'));
     }
 
@@ -65,10 +78,14 @@ class PaymentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $payment = Auth::user()->payments()->findOrFail($id);   
+        $payment = Payment::where('pay_id', $id)
+            ->whereHas('order', function ($query) {
+                $query->where('user_id', Auth::id());
+            })->with('order')->firstOrFail();
+
         $validatedData = $request->validate([
             'amount' => 'required|numeric',
-            'payment_method' => 'required|string',
+            'method' => 'required|string',
             'status' => 'required|string',
         ]);
         $payment->update($validatedData);

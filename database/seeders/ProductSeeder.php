@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Product;
-
+use App\Models\Tag;
 class ProductSeeder extends Seeder
 {
     /**
@@ -21,6 +21,7 @@ class ProductSeeder extends Seeder
             'price'        => 364.61 ,
             'stock_number' => 10,
             'image'        => 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS9JwF-XL1RCMWWq7anWKQjn6XrTFD0raUF-3H0dFoSs5SlrRTWIYVBRNJb2PZ088u2sWJS5KfdFASlpUrCiiGAgtI7VGGJlAPhJy9e56W5e262f0lXCP03fw',
+            'tags'         => ['skincare', 'beauty'],
         ],
         [
             'name'         => 'Juicy Pout Lip Gloss Grapefruit',
@@ -28,12 +29,17 @@ class ProductSeeder extends Seeder
             'price'        => 235.11,
             'stock_number' => 5,
             'image'        => 'https://static.beautytocare.com/cdn-cgi/image/width=768,height=650,f=auto/media/catalog/product//m/a/makeup-revolution-juicy-pout-lip-gloss-grapefruit-4-6ml.png',
+            'tags'         => ['makeup', 'beauty'],
         ],
         
     ];
 
     foreach ($products as $product) {
-        Product::create($product);
+    $tags = $product['tags'];
+    unset($product['tags']);
+    $product = Product::create($product);
+    $tagIds = Tag::whereIn('name', $tags)->pluck('id');
+    $product->tags()->attach($tagIds);
     }
 }
 }

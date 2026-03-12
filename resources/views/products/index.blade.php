@@ -25,11 +25,11 @@
                         <div class="p-4">
                             <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ $product->name }}</h3>
                             <p class="text-green-600 font-bold mt-1">฿{{ number_format($product->price, 2) }}</p>
-                            <p class="text-sm text-gray-500 mt-1">คงเหลือ: {{ $product->stock_number }}</p>
+                            <p class="text-sm text-gray-500 mt-1">remaining: {{ $product->stock_number }}</p>
                         </div>
                     </a>
                 @empty
-                    <p class="text-gray-500">ไม่มีสินค้า</p>
+                    <p class="text-gray-500">no products available</p>
                 @endforelse
             </div>
         </div>
