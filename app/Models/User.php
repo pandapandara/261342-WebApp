@@ -66,4 +66,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class, 'user_id', 'id');
     }
+
+//nx:adding payment relationship to orders
+    public function payments() //1 user has many payments through orders
+    {
+        return $this->hasManyThrough(Payment::class, Order::class, 'user_id', 'order_id', 'id', 'order_id');
+    }
 }
