@@ -66,14 +66,12 @@ class OrderController extends Controller
                 ]);
             }
         }
-
         // 4. Calculate Totals
         $total = collect($validated['products'])->sum(
             fn($item) => $products[$item['product_id']]->price * $item['quantity']
         );
         $shippingFee = 50; // fixed price
         $grandTotal  = $total + $shippingFee;
-
         // 5. Create Order and LINK User data (Address, Phone, etc.)
         $order = Auth::user()->orders()->create([
             'status'         => 'pending',
@@ -84,7 +82,6 @@ class OrderController extends Controller
             'address'        => $validated['address'], // ลิงก์ที่อยู่
             'phone'          => $validated['phone'],   // ลิงก์เบอร์โทร
         ]);
-
         // 6. Map Order Items, Reduce Stock, and Save
         $orderItems = collect($validated['products'])->map(function ($item) use ($products) {
             $product = $products[$item['product_id']];
@@ -98,9 +95,7 @@ class OrderController extends Controller
                 'price_at_purchase' => $product->price,
             ];
         })->toArray();
-
         $order->items()->createMany($orderItems);
-
         // 7. Create Payment Record
         $order->payments()->create([
             'status'       => 'unpaid',

@@ -2,42 +2,39 @@
 
     <div class="page-wrap">
         <div class="container">
-            {{-- Mode Toggle --}}
-            <div class="flex justify-center mb-10">
-                <div class="inline-flex rounded-full p-1 backdrop-blur-sm" style="background: rgba(158, 131, 131, 0.08); border: 1px solid rgba(158, 131, 131, 0.1);">
-                    <a href="{{ request()->fullUrlWithQuery(['mode' => 'Online']) }}"
-                       class="px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2"
-                       style="{{ ($mode ?? 'online') !== 'Secondhand/2nd hand' ? 'background: var(--surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.1);' : 'color: var(--text); opacity: 0.6;' }}">
-                        📁 New
-                    </a>
-                    <a href="{{ request()->fullUrlWithQuery(['mode' => 'Secondhand/2nd hand']) }}"
-                       class="px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2"
-                       style="{{ ($mode ?? 'online') === 'Secondhand/2nd hand' ? 'background: var(--surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.1);' : 'color: var(--text); opacity: 0.6;' }}">
-                        ♻️ 2nd Hand
-                    </a>
-                </div>
-            </div>
-            
-            {{-- Description Card --}}
-            <div class="card card-pad mb-8" style="border-left: 4px solid var(--secondary);">
-                <p class="muted mb-0">
-                    {{ ($mode ?? 'online') === 'Secondhand/2nd hand' ? 'Explore our curated selection of pre-loved treasures, from vintage finds to gently used gems. Shop sustainably and discover unique items with character.' : 'Browse our collection of new products, carefully curated for quality and style. Find the perfect item that suits your needs and preferences.' }}
-                </p>
-            </div>
+            {{-- Hero Banner + Mode Toggle --}}
+<div class="relative w-full rounded-2xl overflow-hidden mb-8" style="height: 220px;">
+    {{-- Background --}}
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://i.ibb.co/238kHWcy/LINE-ALBUM-Banner-260323-1.jpg');
+    {{ ($mode ?? 'online') === 'Secondhand/2nd hand' ? 'filter: sepia(0.8) saturate(0.8);' : '' }}">
+</div>
+<div class="absolute inset-0" style="background: {{ ($mode ?? 'online') === 'Secondhand/2nd hand' 
+    ? 'linear-gradient(135deg, rgba(101,67,33,0.75), rgba(180,120,60,0.6))' 
+    : 'linear-gradient(135deg, rgba(219,39,119,0.75), rgba(244,143,177,0.6))' }}"></div>
 
+    {{-- Content --}}
+    <div class="relative h-full flex flex-col items-center justify-center gap-3 px-6 text-center">
+        <h2 class="text-white text-3xl font-bold tracking-wide">✨ Stellar Market</h2>
+        <p class="text-white/90 text-sm max-w-md">
+            {{ ($mode ?? 'online') === 'Secondhand/2nd hand' 
+                ? 'Explore pre-loved treasures — from vintage finds to gently used gems.' 
+                : 'Browse our collection of new products, carefully curated for quality and style.' }}
+        </p>
 
-{{-- Carousel --}}
-<div class="swiper w-full rounded-xl overflow-hidden mb-0" style="height: 140px;">
-    <div class="swiper-wrapper">
-        <div class="swiper-slide bg-cover bg-center" style="background-image: url('https://i.ibb.co/238kHWcy/LINE-ALBUM-Banner-260323-1.jpg')">
-            <div class="bg-black/40 h-full flex items-center p-10">
-                <h2 class="text-white text-4xl font-bold">stellar Market</h2>
-            </div>
+        {{-- Mode Toggle inside banner --}}
+        <div class="inline-flex rounded-full p-1 mt-1" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);">
+            <a href="{{ request()->fullUrlWithQuery(['mode' => 'Online']) }}"
+               class="px-5 py-1.5 rounded-full text-sm font-bold transition"
+               style="{{ ($mode ?? 'online') !== 'Secondhand/2nd hand' ? 'background: white; color: var(--primary);' : 'color: white; opacity: 0.8;' }}">
+               💎 New
+            </a>
+            <a href="{{ request()->fullUrlWithQuery(['mode' => 'Secondhand/2nd hand']) }}"
+               class="px-5 py-1.5 rounded-full text-sm font-bold transition"
+               style="{{ ($mode ?? 'online') === 'Secondhand/2nd hand' ? 'background: white; color: var(--primary);' : 'color: white; opacity: 0.8;' }}">
+                ♻️ 2nd Hand
+            </a>
         </div>
     </div>
-    <div class="swiper-pagination"></div>
-    <div class="swiper-button-prev"></div>
-    <div class="swiper-button-next"></div>
 </div>
             <script>
             const swiper = new Swiper('.swiper', {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Auth;
 use Cloudinary\Cloudinary as CloudinaryClient;
 use App\Models\Order;
@@ -25,7 +26,8 @@ class SellerProductController extends Controller
 
     public function create()
     {
-        return view('seller.create');
+        $tags = \App\Models\Tag::all();
+        return view('seller.create', compact('tags'));
     }
 
     public function store(Request $request)
@@ -46,8 +48,14 @@ class SellerProductController extends Controller
 
         $product = Product::create($validatedData);
 
-        // เชื่อม seller กับ product
-        Auth::user()->sellerProducts()->attach($product->product_id);
+        // เชื่อม seller กับ product พร้อม tags
+        $tags = $request->has('tags') ? $request->tags : [];
+        Auth::user()->sellerProducts()->attach($product->product_id, ['tags' => json_encode($tags)]);
+
+        // เชื่อม product กับ tags ใน tags table
+        if ($request->has('tags')) {
+            $product->tags()->sync($request->tags);
+        }
 
         return redirect()->route('seller.index')->with('success', 'Product created successfully.');
     }
@@ -56,7 +64,8 @@ class SellerProductController extends Controller
     {
         // เช็คว่าเป็นสินค้าของ seller คนนี้จริงไหม
         $product = Auth::user()->sellerProducts()->where('products.product_id', $id)->firstOrFail();
-        return view('seller.edit', compact('product'));
+        $tags = \App\Models\Tag::all();
+          return view('seller.edit', compact('product', 'tags'));
     }
 
     public function update(Request $request, string $id)
@@ -79,6 +88,16 @@ class SellerProductController extends Controller
         }
 
         $product->update($validatedData);
+
+        // อัปเดต tags ในตาราง tags
+        if ($request->has('tags')) {
+            $product->tags()->sync($request->tags);
+        } else {
+            $product->tags()->sync([]);
+        }
+
+        // อัปเดต tags ในตาราง seller_products
+        Auth::user()->sellerProducts()->updateExistingPivot($product->product_id, ['tags' => json_encode($request->input('tags', []))]);
 
         return redirect()->route('seller.index')->with('success', 'Product updated successfully.');
     }
